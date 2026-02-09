@@ -9,6 +9,6 @@ output "location" {
 }
 
 output "resource_group_id" {
-  description = "Resource group ID for RBAC scoping"
+  description = "Resource group ID"
   value       = azurerm_resource_group.this.id
 }
