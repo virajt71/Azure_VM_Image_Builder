@@ -1,10 +1,10 @@
 locals {
-  templete_name = "template"
+  template_name   = "template"
   staging_rg_name = "staging"
-  location    = "northeurope"
+  location        = "northeurope"
 
   common_tags = {
-    managed_by  = "terraform"
+    managed_by = "terraform"
   }
 }
 

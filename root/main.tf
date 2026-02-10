@@ -1,7 +1,7 @@
 module "template_rg" {
-  source = ".../modules/resource_group"
+  source = "../modules/resource_group"
 
-  name     = "${local.templete_name}_rg"
+  name     = "${local.template_name}_rg"
   location = local.location
 
   tags = local.common_tags
@@ -38,7 +38,7 @@ module "user_msi" {
   resource_group_name = module.template_rg.name
 
   name                 = "aib_builder_User_id${random_string.this.result}"
-  role_defination_name = "role_defination${random_string.this.result}"
+  role_definition_name = "role_definition_${random_string.this.result}"
 
   assignable_scopes = module.template_rg.resource_group_id
 

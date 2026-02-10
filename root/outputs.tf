@@ -3,8 +3,9 @@ output "template_rg_id" {
 }
 
 output "client_id_identity" {
-  description = "Client's ID for mamagned identity"
+  description = "Client's ID for Managed identity"
   value       = module.user_msi.client_id_identity
+  sensitive   = true
 }
 
 output "identity_ids" {

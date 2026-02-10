@@ -12,7 +12,7 @@ resource "azurerm_user_assigned_identity" "this" {
 
 # Create custome role defination for image builder
 resource "azurerm_role_definition" "this" {
-  name        = var.role_defination_name
+  name        = var.role_definition_name
   scope       = data.azurerm_subscription.this.id
   description = "Image Builder access to create resources for the image build, you should delete or split out as appropriate"
 

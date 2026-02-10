@@ -13,8 +13,8 @@ variable "resource_group_name" {
   type        = string
 }
 
-variable "role_defination_name" {
-  description = "role defination name"
+variable "role_definition_name" {
+  description = "role definition name"
   type        = string
 }
 
