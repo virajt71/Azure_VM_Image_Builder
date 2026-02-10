@@ -134,13 +134,14 @@ resource "azapi_resource" "linux-template" {
           type = "Shell"
           name = "InstallUpgrades"
           inline = [
-            "sudo apt install unattended-upgrades"
+            "sudo apt-get update",
+            "sudo apt-get install -y unattended-upgrades"
           ]
         }
       ]
     }
   }
-  depends_on = [module.sig]
+  depends_on = [module.user_msi]
 }
 
 resource "azapi_resource" "windows-template" {
@@ -215,7 +216,7 @@ resource "azapi_resource" "windows-template" {
       ]
     }
   }
-  depends_on = [module.sig]
+  depends_on = [module.user_msi]
 }
 
 
