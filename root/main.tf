@@ -102,7 +102,6 @@ module "linux_image_template" {
       ]
     }
   ]
-
   customize_steps = local.linux_customize_steps
 
   depends_on_resources = [module.user_msi]
@@ -143,7 +142,6 @@ module "linux_managed_image" {
       }
     }
   ]
-
   customize_steps = local.linux_customize_steps
 
   depends_on_resources = [module.user_msi]
@@ -189,7 +187,6 @@ module "windows_image_template" {
       ]
     }
   ]
-
   customize_steps = local.windows_customize_steps
 
   depends_on_resources = [module.user_msi]
