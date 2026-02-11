@@ -66,12 +66,12 @@ module "sig" {
 module "linux_image_template" {
   source = "../modules/image_template"
 
-  name                       = "linux"
-  parent_id                  = module.template_rg.resource_group_id
-  location                   = local.location
-  managed_identity_id        = module.user_msi.identity_ids
-  staging_resource_group_id  = module.linux_staging_rg.resource_group_id
-  build_timeout_minutes      = 100
+  name                      = "linux"
+  parent_id                 = module.template_rg.resource_group_id
+  location                  = local.location
+  managed_identity_id       = module.user_msi.identity_ids
+  staging_resource_group_id = module.linux_staging_rg.resource_group_id
+  build_timeout_minutes     = 100
 
   image_source = {
     type      = "PlatformImage"
@@ -90,7 +90,7 @@ module "linux_image_template" {
     {
       type           = "SharedImage"
       galleryImageId = module.sig.linux_imageID
-      runOutputName  = "Image_Output"
+      runOutputName  = "SharedImage_Output"
       artifactTags = {
         source    = "azureVmImageBuilder"
         baseosimg = "ubuntu2004"
@@ -108,16 +108,57 @@ module "linux_image_template" {
   depends_on_resources = [module.user_msi]
 }
 
+module "linux_managed_image" {
+  source = "../modules/image_template"
+
+  name                      = "linux-managed"
+  parent_id                 = module.template_rg.resource_group_id
+  location                  = local.location
+  managed_identity_id       = module.user_msi.identity_ids
+  staging_resource_group_id = module.linux_staging_rg.resource_group_id
+  build_timeout_minutes     = 100
+
+  image_source = {
+    type      = "PlatformImage"
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-focal"
+    sku       = "20_04-lts-gen2"
+    version   = "latest"
+  }
+
+  vm_profile = {
+    vmSize       = "Standard_D2s_v3"
+    osDiskSizeGB = 30
+  }
+
+  distribute = [
+    {
+      type          = "ManagedImage"
+      imageId       = "${module.template_rg.resource_group_id}/providers/Microsoft.Compute/images/linux-managed-image"
+      location      = local.location
+      runOutputName = "ManagedImage_Output"
+      artifactTags = {
+        source    = "azureVmImageBuilder"
+        baseosimg = "ubuntu2004"
+      }
+    }
+  ]
+
+  customize_steps = local.linux_customize_steps
+
+  depends_on_resources = [module.user_msi]
+}
+
 # Windows Image Template
 module "windows_image_template" {
   source = "../modules/image_template"
 
-  name                       = "windows"
-  parent_id                  = module.template_rg.resource_group_id
-  location                   = local.location
-  managed_identity_id        = module.user_msi.identity_ids
-  staging_resource_group_id  = module.windows_staging_rg.resource_group_id
-  build_timeout_minutes      = 100
+  name                      = "windows"
+  parent_id                 = module.template_rg.resource_group_id
+  location                  = local.location
+  managed_identity_id       = module.user_msi.identity_ids
+  staging_resource_group_id = module.windows_staging_rg.resource_group_id
+  build_timeout_minutes     = 100
 
   image_source = {
     type      = "PlatformImage"
