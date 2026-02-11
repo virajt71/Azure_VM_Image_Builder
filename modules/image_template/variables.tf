@@ -49,16 +49,36 @@ variable "vm_profile" {
 }
 
 variable "distribute" {
-  description = "Distribution configuration"
+  description = "Distribution configuration - supports SharedImage, ManagedImage, and VHD types"
   type = list(object({
-    type           = string
-    galleryImageId = string
-    runOutputName  = string
-    artifactTags   = map(string)
-    targetRegions = list(object({
-      name = string
-    }))
+    type          = string
+    runOutputName = string
+    artifactTags  = map(string)
+    # SharedImage specific (optional)
+    galleryImageId = optional(string)
+    targetRegions = optional(list(object({
+      name               = string
+      replicaCount       = optional(number)
+      storageAccountType = optional(string)
+    })))
+    replication_regions = optional(list(string))
+    # ManagedImage specific (optional)
+    imageId  = optional(string)
+    location = optional(string)
+    # VHD specific (optional)
+    uri = optional(string)
   }))
+
+  validation {
+    condition = alltrue([
+      for dist in var.distribute : (
+        (dist.type == "SharedImage" && dist.galleryImageId != null && dist.targetRegions != null) ||
+        (dist.type == "ManagedImage" && dist.imageId != null && dist.location != null) ||
+        (dist.type == "VHD" && dist.uri != null)
+      )
+    ])
+    error_message = "Each distribution type requires specific fields: SharedImage (galleryImageId, targetRegions), ManagedImage (imageId, location), VHD (uri)"
+  }
 }
 
 variable "customize_steps" {
