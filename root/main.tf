@@ -11,7 +11,7 @@ module "linux_staging_rg" {
   source = "../modules/resource_group"
 
   name     = "linux_${local.staging_rg_name}_rg"
-  location = local.location
+  location = module.template_rg.location
 
   tags = local.common_tags
 }
@@ -20,7 +20,7 @@ module "windows_staging_rg" {
   source = "../modules/resource_group"
 
   name     = "windows_${local.staging_rg_name}_rg"
-  location = local.location
+  location = module.template_rg.location
 
   tags = local.common_tags
 }
@@ -34,7 +34,7 @@ resource "random_string" "this" {
 module "user_msi" {
   source = "../modules/managed_identity"
 
-  location            = local.location
+  location            = module.template_rg.location
   resource_group_name = module.template_rg.name
 
   name                 = "aib_builder_User_id${random_string.this.result}"
@@ -54,12 +54,50 @@ module "sig" {
   source = "../modules/sig"
 
   name                = "sig"
-  location            = local.location
+  location            = module.template_rg.location
   resource_group_name = module.template_rg.name
 
   tags = local.common_tags
 
   depends_on = [module.template_rg]
+}
+
+module "linux_image_definition" {
+  source = "../modules/image_definition"
+
+  name                = "linux_image_definition"
+  sig_name            = module.sig.sig_name
+  location            = module.template_rg.location
+  resource_group_name = module.template_rg.name
+  os_type             = "Linux"
+  specialized         = false
+
+  identifier = {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-focal"
+    sku       = "20_04-lts-gen2"
+  }
+
+  tags = local.common_tags
+}
+
+module "windows_image_definition" {
+  source = "../modules/image_definition"
+
+  name                = "windows_image_definition"
+  sig_name            = module.sig.sig_name
+  location            = module.template_rg.location
+  resource_group_name = module.template_rg.name
+  os_type             = "Windows"
+  specialized         = false
+
+  identifier = {
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "2022-datacenter-azure-edition"
+  }
+
+  tags = local.common_tags
 }
 
 # Linux Image Template
@@ -68,7 +106,7 @@ module "linux_image_template" {
 
   name                      = "linux"
   parent_id                 = module.template_rg.resource_group_id
-  location                  = local.location
+  location                  = module.template_rg.location
   managed_identity_id       = module.user_msi.identity_ids
   staging_resource_group_id = module.linux_staging_rg.resource_group_id
   build_timeout_minutes     = 100
@@ -89,7 +127,7 @@ module "linux_image_template" {
   distribute = [
     {
       type           = "SharedImage"
-      galleryImageId = module.sig.linux_imageID
+      galleryImageId = module.linux_image_definition.image_definition_ID
       runOutputName  = "SharedImage_Output"
       artifactTags = {
         source    = "azureVmImageBuilder"
@@ -97,7 +135,7 @@ module "linux_image_template" {
       }
       targetRegions = [
         {
-          name = local.location
+          name = module.template_rg.location
         }
       ]
     }
@@ -112,7 +150,7 @@ module "linux_managed_image" {
 
   name                      = "linux-managed"
   parent_id                 = module.template_rg.resource_group_id
-  location                  = local.location
+  location                  = module.template_rg.location
   managed_identity_id       = module.user_msi.identity_ids
   staging_resource_group_id = module.linux_staging_rg.resource_group_id
   build_timeout_minutes     = 100
@@ -134,7 +172,7 @@ module "linux_managed_image" {
     {
       type          = "ManagedImage"
       imageId       = "${module.template_rg.resource_group_id}/providers/Microsoft.Compute/images/linux-managed-image"
-      location      = local.location
+      location      = module.template_rg.location
       runOutputName = "ManagedImage_Output"
       artifactTags = {
         source    = "azureVmImageBuilder"
@@ -153,7 +191,7 @@ module "windows_image_template" {
 
   name                      = "windows"
   parent_id                 = module.template_rg.resource_group_id
-  location                  = local.location
+  location                  = module.template_rg.location
   managed_identity_id       = module.user_msi.identity_ids
   staging_resource_group_id = module.windows_staging_rg.resource_group_id
   build_timeout_minutes     = 100
@@ -174,7 +212,7 @@ module "windows_image_template" {
   distribute = [
     {
       type           = "SharedImage"
-      galleryImageId = module.sig.windows_imageID
+      galleryImageId = module.windows_image_definition.image_definition_ID
       runOutputName  = "Image_Output"
       artifactTags = {
         source    = "azureVmImageBuilder"
@@ -182,7 +220,7 @@ module "windows_image_template" {
       }
       targetRegions = [
         {
-          name = local.location
+          name = module.template_rg.location
         }
       ]
     }

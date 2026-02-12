@@ -1,9 +1,9 @@
-output "linux_imageID" {
+output "sig_name" {
   description = "linux share image defination"
-  value       = azurerm_shared_image.linux.id
+  value       = azurerm_shared_image_gallery.sig.name
 }
 
-output "windows_imageID" {
+output "sig_ids" {
   description = "linux share image defination"
-  value       = azurerm_shared_image.windows.id
+  value       = azurerm_shared_image_gallery.sig.id
 }
