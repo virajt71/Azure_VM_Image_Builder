@@ -1,3 +1,4 @@
+# Template resource group
 module "template_rg" {
   source = "../modules/resource_group"
 
@@ -7,6 +8,7 @@ module "template_rg" {
   tags = local.common_tags
 }
 
+# Linux Staging Resource Group
 module "linux_staging_rg" {
   source = "../modules/resource_group"
 
@@ -16,6 +18,7 @@ module "linux_staging_rg" {
   tags = local.common_tags
 }
 
+# Windows Staging Resource Group
 module "windows_staging_rg" {
   source = "../modules/resource_group"
 
@@ -31,6 +34,7 @@ resource "random_string" "this" {
   numeric = true
 }
 
+# Create and Assign MSI to RG 
 module "user_msi" {
   source = "../modules/managed_identity"
 
@@ -50,6 +54,7 @@ module "user_msi" {
   depends_on = [module.template_rg]
 }
 
+# Create Shared Image Gallery
 module "sig" {
   source = "../modules/sig"
 
@@ -62,6 +67,7 @@ module "sig" {
   depends_on = [module.template_rg]
 }
 
+# Create Linux Image Definition
 module "linux_image_definition" {
   source = "../modules/image_definition"
 
@@ -81,6 +87,7 @@ module "linux_image_definition" {
   tags = local.common_tags
 }
 
+# Create Windows Image Definition
 module "windows_image_definition" {
   source = "../modules/image_definition"
 
@@ -100,7 +107,7 @@ module "windows_image_definition" {
   tags = local.common_tags
 }
 
-# Linux Image Template
+# Linux Image Template for Shared Image
 module "linux_image_template" {
   source = "../modules/image_template"
 
@@ -145,6 +152,7 @@ module "linux_image_template" {
   depends_on_resources = [module.user_msi]
 }
 
+# Linux Image Template for Managed Image
 module "linux_managed_image" {
   source = "../modules/image_template"
 
@@ -185,7 +193,7 @@ module "linux_managed_image" {
   depends_on_resources = [module.user_msi]
 }
 
-# Windows Image Template
+# Windows Image Template for Shared Image
 module "windows_image_template" {
   source = "../modules/image_template"
 
